@@ -1,0 +1,336 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ==========================================
+# LOAD DATASET
+# ==========================================
+
+df = pd.read_csv("customer_churn.csv")
+
+print("=" * 50)
+print("CUSTOMER CHURN ANALYSIS")
+print("=" * 50)
+
+print("\nDataset Shape:")
+print(df.shape)
+
+print("\nColumns:")
+print(df.columns)
+
+print("\nFirst 5 Rows:")
+print(df.head())
+
+# ==========================================
+# DATA CLEANING
+# ==========================================
+
+print("\nMissing Values:")
+print(df.isnull().sum())
+
+# Convert TotalCharges to numeric
+df['TotalCharges'] = pd.to_numeric(
+    df['TotalCharges'],
+    errors='coerce'
+)
+
+# Fill missing values
+df['TotalCharges'] = df['TotalCharges'].fillna(
+    df['TotalCharges'].median()
+)
+
+print("\nData Types:")
+print(df.dtypes)
+
+# ==========================================
+# BASIC STATISTICS
+# ==========================================
+
+print("\nStatistical Summary:")
+print(df.describe())
+
+# ==========================================
+# CHURN ANALYSIS
+# ==========================================
+
+total_customers = len(df)
+
+churned_customers = len(
+    df[df['Churn'] == 'Yes']
+)
+
+retained_customers = len(
+    df[df['Churn'] == 'No']
+)
+
+churn_rate = (
+    churned_customers / total_customers
+) * 100
+
+print("\nTotal Customers:", total_customers)
+print("Churned Customers:", churned_customers)
+print("Retained Customers:", retained_customers)
+print(f"Churn Rate: {churn_rate:.2f}%")
+
+# ==========================================
+# CHURN DISTRIBUTION
+# ==========================================
+
+plt.figure(figsize=(6,4))
+
+df['Churn'].value_counts().plot(
+    kind='bar'
+)
+
+plt.title("Customer Churn Distribution")
+plt.xlabel("Churn")
+plt.ylabel("Count")
+
+plt.tight_layout()
+plt.savefig("churn_distribution.png")
+plt.show()
+
+# ==========================================
+# GENDER ANALYSIS
+# ==========================================
+
+gender_churn = pd.crosstab(
+    df['gender'],
+    df['Churn']
+)
+
+print("\nGender Analysis")
+print(gender_churn)
+
+gender_churn.plot(
+    kind='bar',
+    figsize=(8,5)
+)
+
+plt.title("Gender vs Churn")
+plt.tight_layout()
+plt.savefig("gender_churn.png")
+plt.show()
+
+# ==========================================
+# CONTRACT ANALYSIS
+# ==========================================
+
+contract_churn = pd.crosstab(
+    df['Contract'],
+    df['Churn']
+)
+
+print("\nContract Analysis")
+print(contract_churn)
+
+contract_churn.plot(
+    kind='bar',
+    figsize=(8,5)
+)
+
+plt.title("Contract Type vs Churn")
+plt.tight_layout()
+plt.savefig("contract_analysis.png")
+plt.show()
+
+# ==========================================
+# INTERNET SERVICE ANALYSIS
+# ==========================================
+
+internet_churn = pd.crosstab(
+    df['InternetService'],
+    df['Churn']
+)
+
+print("\nInternet Service Analysis")
+print(internet_churn)
+
+internet_churn.plot(
+    kind='bar',
+    figsize=(8,5)
+)
+
+plt.title("Internet Service vs Churn")
+plt.tight_layout()
+plt.savefig("internet_service_analysis.png")
+plt.show()
+
+# ==========================================
+# SENIOR CITIZEN ANALYSIS
+# ==========================================
+
+senior_churn = pd.crosstab(
+    df['SeniorCitizen'],
+    df['Churn']
+)
+
+print("\nSenior Citizen Analysis")
+print(senior_churn)
+
+# ==========================================
+# PAYMENT METHOD ANALYSIS
+# ==========================================
+
+payment_churn = pd.crosstab(
+    df['PaymentMethod'],
+    df['Churn']
+)
+
+print("\nPayment Method Analysis")
+print(payment_churn)
+
+payment_churn.plot(
+    kind='bar',
+    figsize=(10,5)
+)
+
+plt.title("Payment Method vs Churn")
+plt.tight_layout()
+plt.savefig("payment_method_analysis.png")
+plt.show()
+
+# ==========================================
+# MONTHLY CHARGES ANALYSIS
+# ==========================================
+
+plt.figure(figsize=(8,5))
+
+df[df['Churn'] == 'Yes'][
+    'MonthlyCharges'
+].hist(
+    bins=30,
+    alpha=0.7,
+    label='Churned'
+)
+
+df[df['Churn'] == 'No'][
+    'MonthlyCharges'
+].hist(
+    bins=30,
+    alpha=0.7,
+    label='Retained'
+)
+
+plt.legend()
+plt.title("Monthly Charges Distribution")
+plt.xlabel("Monthly Charges")
+plt.ylabel("Frequency")
+
+plt.tight_layout()
+plt.savefig("monthly_charges_distribution.png")
+plt.show()
+
+# ==========================================
+# TENURE ANALYSIS
+# ==========================================
+
+plt.figure(figsize=(8,5))
+
+df[df['Churn'] == 'Yes'][
+    'tenure'
+].hist(
+    bins=30,
+    alpha=0.7,
+    label='Churned'
+)
+
+df[df['Churn'] == 'No'][
+    'tenure'
+].hist(
+    bins=30,
+    alpha=0.7,
+    label='Retained'
+)
+
+plt.legend()
+plt.title("Tenure Distribution")
+plt.xlabel("Tenure")
+plt.ylabel("Frequency")
+
+plt.tight_layout()
+plt.savefig("tenure_distribution.png")
+plt.show()
+
+# ==========================================
+# REVENUE ANALYSIS
+# ==========================================
+
+total_revenue = df[
+    'TotalCharges'
+].sum()
+
+avg_monthly_charge = df[
+    'MonthlyCharges'
+].mean()
+
+print("\nRevenue Analysis")
+print("Total Revenue:", round(total_revenue, 2))
+print("Average Monthly Charge:",
+      round(avg_monthly_charge, 2))
+
+# ==========================================
+# CUSTOMER SEGMENTATION
+# ==========================================
+
+high_value = df[
+    df['MonthlyCharges'] > 80
+]
+
+medium_value = df[
+    (df['MonthlyCharges'] >= 40) &
+    (df['MonthlyCharges'] <= 80)
+]
+
+low_value = df[
+    df['MonthlyCharges'] < 40
+]
+
+print("\nCustomer Segmentation")
+
+print("High Value Customers:",
+      len(high_value))
+
+print("Medium Value Customers:",
+      len(medium_value))
+
+print("Low Value Customers:",
+      len(low_value))
+
+# ==========================================
+# BUSINESS INSIGHTS
+# ==========================================
+
+print("\n" + "=" * 50)
+print("BUSINESS INSIGHTS")
+print("=" * 50)
+
+most_churn_contract = (
+    df[df['Churn'] == 'Yes']
+    ['Contract']
+    .value_counts()
+    .idxmax()
+)
+
+print(
+    "Highest Churn Contract:",
+    most_churn_contract
+)
+
+highest_payment_method = (
+    df[df['Churn'] == 'Yes']
+    ['PaymentMethod']
+    .value_counts()
+    .idxmax()
+)
+
+print(
+    "Highest Churn Payment Method:",
+    highest_payment_method
+)
+
+print(
+    f"Overall Churn Rate: {churn_rate:.2f}%"
+)
+
+print("\nAnalysis Completed Successfully")
